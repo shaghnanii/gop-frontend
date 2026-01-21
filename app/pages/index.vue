@@ -1,3 +1,6 @@
+<script setup lang="ts">
+</script>
+
 <template>
   <div>
     <div class="bg-gradient-to-br from-[#377E7F] to-[#3A715E] text-white py-16 sm:py-24">
@@ -385,5 +388,3 @@
     </div>
   </div>
 </template>
-<script setup lang="ts">
-</script>

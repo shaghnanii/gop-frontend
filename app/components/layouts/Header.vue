@@ -30,10 +30,9 @@
           <NuxtLink to="/pub/documentation" class="text-sm text-gray-700 hover:text-[#0b2545] transition-colors">Documentation</NuxtLink>
         </nav>
         <div class="flex items-center gap-3">
-          <button
-            class="hidden sm:block px-4 py-2 bg-[#0b2545] text-white rounded-lg hover:bg-[#0d2f59] transition-colors text-sm">
+          <NuxtLink to="/auth/sign-in" class="hidden sm:block px-4 py-2 bg-[#0b2545] text-white rounded-lg hover:bg-[#0d2f59] transition-colors text-sm">
             Sign In
-          </button>
+          </NuxtLink>
           <button class="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg" aria-label="Menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"

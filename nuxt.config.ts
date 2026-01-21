@@ -13,9 +13,17 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  // plugins: ['~/plugins/draggable'],
+
   routeRules: {
     '/': { prerender: true }
   },
 
-  compatibilityDate: '2025-01-15'
+  compatibilityDate: '2025-01-15',
+
+  runtimeConfig:{
+    public:{
+      baseURL: process.env.apiBaseUrl
+    }
+  }
 })

@@ -29,17 +29,9 @@ useSeoMeta({
 </script>
 
 <template>
-  <div id="container">
-    <div class="tailwind">
-      <div id="fig-code-root" style="height: 100%;">
-        <div class="min-h-screen bg-white">
-          <Header />
-          <main>
-            <NuxtPage />
-          </main>
-          <Footer />
-        </div>
-      </div>
-    </div>
-  </div>
+  <NuxtLayout>
+    <main>
+      <NuxtPage />
+    </main>
+  </NuxtLayout>
 </template>
