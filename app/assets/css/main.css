@@ -15,4 +15,18 @@
   --color-green-800: #016538;
   --color-green-900: #0A5331;
   --color-green-950: #052E16;
+  --color-primary: #0b2545;
+  --color-secondary: #0d2f59;
+  --green-background: #377E7F;
+}
+
+body {
+  color: black;
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+.bg-secondary {
+  background-color: var(--color-secondary);
 }
