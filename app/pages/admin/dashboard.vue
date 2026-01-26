@@ -1,5 +1,8 @@
 <script setup lang="ts">
-
+// Protect admin routes - only admin users can access
+definePageMeta({
+  middleware: 'admin'
+})
 </script>
 
 <template>

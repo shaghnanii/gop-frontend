@@ -1,5 +1,18 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 
+const { isAuthenticated, getUserRole, getDashboardPath, clearAuth } = useAuth()
+
+const dashboardPath = computed(() => {
+  if (!isAuthenticated()) return '/auth/sign-in'
+  const role = getUserRole()
+  return getDashboardPath(role)
+})
+
+const handleLogout = () => {
+  clearAuth()
+  navigateTo('/auth/sign-in')
+}
 </script>
 
 <template>
@@ -30,7 +43,21 @@
           <NuxtLink to="/pub/documentation" class="text-sm text-gray-700 hover:text-[#0b2545] transition-colors">Documentation</NuxtLink>
         </nav>
         <div class="flex items-center gap-3">
-          <NuxtLink to="/auth/sign-in" class="hidden sm:block px-4 py-2 bg-[#0b2545] text-white rounded-lg hover:bg-[#0d2f59] transition-colors text-sm">
+          <!-- Show Dashboard and Logout if authenticated -->
+          <template v-if="isAuthenticated()">
+            <NuxtLink :to="dashboardPath" class="hidden sm:block px-4 py-2 text-[#0b2545] hover:text-[#0d2f59] transition-colors text-sm font-medium">
+              Dashboard
+            </NuxtLink>
+            <span class="hidden sm:block text-gray-300">|</span>
+            <button 
+              @click="handleLogout" 
+              class="hidden sm:block px-4 py-2 text-gray-700 hover:text-[#0b2545] transition-colors text-sm"
+            >
+              Logout
+            </button>
+          </template>
+          <!-- Show Sign In if not authenticated -->
+          <NuxtLink v-else to="/auth/sign-in" class="hidden sm:block px-4 py-2 bg-[#0b2545] text-white rounded-lg hover:bg-[#0d2f59] transition-colors text-sm">
             Sign In
           </NuxtLink>
           <button class="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg" aria-label="Menu">
