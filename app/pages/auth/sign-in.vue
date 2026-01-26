@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRuntimeConfig } from '#app'
 
 // Apply auth middleware to redirect if already logged in
 definePageMeta({
   middleware: 'auth'
 })
 
-const step = ref<'select-role' | 'login'>('select-role')
+const step = ref<'select-role' | 'login'>('login')
 const selectedRole = ref<'publisher' | 'admin' | ''>('publisher')
 const email = ref('')
 const password = ref('')
@@ -16,9 +17,10 @@ const errorMessage = ref('')
 const locationStatus = ref<'idle' | 'requesting' | 'granted' | 'denied'>('idle')
 
 // Backend API base URL
-const API_BASE_URL = 'http://localhost:8080'
 
-const { getUserRole, getDashboardPath } = useAuth()
+
+const config = useRuntimeConfig()
+const API_BASE_URL = config.public.baseURL
 
 // Decode JWT token to extract role
 const decodeJWT = (token: string) => {
@@ -205,7 +207,7 @@ const handleLogin = async () => {
       // Decode token to get user role
       const decodedToken = decodeJWT(response.data.accessToken)
       let userRole: 'admin' | 'publisher' | null = null
-      
+
       if (decodedToken) {
         const role = decodedToken.Role || decodedToken.role || null
         if (role) {
@@ -217,12 +219,12 @@ const handleLogin = async () => {
           }
         }
       }
-      
+
       // Fallback to selectedRole if token doesn't have role
       if (!userRole) {
         userRole = selectedRole.value === 'admin' ? 'admin' : 'publisher'
       }
-      
+
       // Store tokens
       localStorage.setItem('rememberMe', String(payload.rememberMe))
       localStorage.setItem('refreshToken', response.data.refreshToken)

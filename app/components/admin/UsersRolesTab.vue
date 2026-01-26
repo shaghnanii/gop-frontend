@@ -2,8 +2,10 @@
 import { ref, onMounted } from 'vue'
 import { useAuth } from '~/composables/useAuth'
 const toast = useToast()
+import { useRuntimeConfig } from '#app'
 
-const API_BASE_URL = 'http://localhost:8080'
+const config = useRuntimeConfig()
+const API_BASE_URL = config.public.baseURL
 const { getAccessToken } = useAuth()
 
 interface User {

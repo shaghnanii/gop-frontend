@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { ref, computed, defineAsyncComponent, onMounted } from 'vue'
 import { useAuth } from '~/composables/useAuth'
+import { useRuntimeConfig } from '#app'
 
 // Protect admin routes - only admin users can access
 definePageMeta({
   middleware: 'admin'
 })
 
-const API_BASE_URL = 'http://localhost:8080'
+
+const config = useRuntimeConfig()
+const API_BASE_URL = config.public.baseURL
 const { getAccessToken } = useAuth()
 
 interface SummaryData {

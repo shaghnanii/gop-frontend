@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useAuth } from '~/composables/useAuth'
+import { useRuntimeConfig } from '#app'
 
-const API_BASE_URL = 'http://localhost:8080'
+const config = useRuntimeConfig()
+const API_BASE_URL = config.public.baseURL
 const { getAccessToken } = useAuth()
 
 interface SRORulesData {
