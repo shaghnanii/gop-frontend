@@ -34,4 +34,5 @@ useSeoMeta({
       <NuxtPage />
     </main>
   </NuxtLayout>
+  <ToastContainer />
 </template>

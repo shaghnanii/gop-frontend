@@ -3,7 +3,8 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/ui',
     '@nuxt/image',
-    '@nuxt/scripts'
+    '@nuxt/scripts',
+    'nuxt-toast'
   ],
   ssr: false,
 
