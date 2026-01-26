@@ -95,16 +95,18 @@ onMounted(() => {
       <div class="bg-gradient-to-br from-[#377E7F] to-[#3A715E] rounded-lg p-8 mb-6 text-white"><h2
         class="text-white mb-2">Create New Notice</h2>
         <p class="text-gray-100 mb-6">Start drafting a new gazette notification for publication</p>
-        <button
-          class="px-6 py-3 bg-white text-[#377E7F] rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-               class="lucide lucide-plus w-5 h-5" aria-hidden="true">
-            <path d="M5 12h14"></path>
-            <path d="M12 5v14"></path>
-          </svg>
-          Create Notice
-        </button>
+        <NuxtLink to="/publisher/notice/create">
+          <button
+            class="px-6 py-3 bg-white text-[#377E7F] rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-2 hover:cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="lucide lucide-plus w-5 h-5" aria-hidden="true">
+              <path d="M5 12h14"></path>
+              <path d="M12 5v14"></path>
+            </svg>
+            Create Notice
+          </button>
+        </NuxtLink>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <div class="bg-white border border-gray-200 rounded-lg p-6">
