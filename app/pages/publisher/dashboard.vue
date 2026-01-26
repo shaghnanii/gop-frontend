@@ -1,11 +1,89 @@
 <script setup lang="ts">
-// Protect publisher routes - only publisher users can access
+import { ref, onMounted } from 'vue'
+import { useAuth } from '~/composables/useAuth'
+import { useRuntimeConfig } from '#app'
 import MyDrafts from "~/components/publisher/MyDrafts.vue";
 import RecentlyPublished from "~/components/publisher/RecentlyPublished.vue";
 import Notifications from "~/components/publisher/Notifications.vue";
 
+// Protect publisher routes - only publisher users can access
 definePageMeta({
   middleware: 'publisher'
+})
+
+const config = useRuntimeConfig()
+const API_BASE_URL = config.public.baseURL
+const { getAccessToken } = useAuth()
+
+interface PublisherSummaryData {
+  totalPublishedCount?: number
+  totalDraftCount?: number
+}
+
+interface PublisherSummaryResponse {
+  status?: number
+  message?: string
+  data?: PublisherSummaryData
+}
+
+// Summary state
+const summaryData = ref<PublisherSummaryData>({
+  totalPublishedCount: 0,
+  totalDraftCount: 0
+})
+const isLoadingSummary = ref(false)
+const summaryError = ref<string | null>(null)
+
+// Format number with commas
+const formatNumber = (num: number | undefined) => {
+  if (num === undefined || num === null) return '0'
+  return num.toLocaleString('en-US')
+}
+
+// Fetch summary data
+const fetchSummary = async () => {
+  isLoadingSummary.value = true
+  summaryError.value = null
+
+  try {
+    const token = getAccessToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    const response = await $fetch<PublisherSummaryResponse>(
+      `${API_BASE_URL}/api/publisher-dashboard`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    )
+
+    if (response.data) {
+      summaryData.value = {
+        totalPublishedCount: response.data.totalPublishedCount || 0,
+        totalDraftCount: response.data.totalDraftCount || 0
+      }
+    }
+  } catch (err: any) {
+    console.error('Error fetching publisher summary:', err)
+    summaryError.value = err.data?.message || err.message || 'Failed to load summary'
+    // Set default values on error
+    summaryData.value = {
+      totalPublishedCount: 0,
+      totalDraftCount: 0
+    }
+  } finally {
+    isLoadingSummary.value = false
+  }
+}
+
+// Fetch summary on mount
+onMounted(() => {
+  fetchSummary()
 })
 </script>
 
@@ -33,21 +111,6 @@ definePageMeta({
           <div class="flex items-center justify-between mb-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                 class="lucide lucide-pen-tool w-5 h-5 text-[#0b2545]" aria-hidden="true">
-              <path
-                d="M15.707 21.293a1 1 0 0 1-1.414 0l-1.586-1.586a1 1 0 0 1 0-1.414l5.586-5.586a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 1 0 1.414z"></path>
-              <path
-                d="m18 13-1.375-6.874a1 1 0 0 0-.746-.776L3.235 2.028a1 1 0 0 0-1.207 1.207L5.35 15.879a1 1 0 0 0 .776.746L13 18"></path>
-              <path d="m2.3 2.3 7.286 7.286"></path>
-              <circle cx="11" cy="11" r="2"></circle>
-            </svg>
-            <span class="text-2xl text-[#0b2545]">24</span></div>
-          <div class="text-sm text-gray-600">Total Publishers</div>
-        </div>
-        <div class="bg-white border border-gray-200 rounded-lg p-6">
-          <div class="flex items-center justify-between mb-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                  class="lucide lucide-file-text w-5 h-5 text-[#0b6b3a]" aria-hidden="true">
               <path
                 d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path>
@@ -56,20 +119,42 @@ definePageMeta({
               <path d="M16 13H8"></path>
               <path d="M16 17H8"></path>
             </svg>
-            <span class="text-2xl text-[#0b6b3a]">42</span></div>
-          <div class="text-sm text-gray-600">Notices Published (Last 30 Days)</div>
+            <span v-if="isLoadingSummary" class="text-2xl text-gray-300 animate-pulse text-[#0b6b3a]">---</span>
+            <span v-else class="text-2xl text-[#0b6b3a]">{{ formatNumber(summaryData.totalPublishedCount) }}</span>
+          </div>
+          <div class="text-sm text-gray-600">Published Notices</div>
         </div>
         <div class="bg-white border border-gray-200 rounded-lg p-6">
           <div class="flex items-center justify-between mb-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                 class="lucide lucide-bell w-5 h-5 text-[#377E7F]" aria-hidden="true">
-              <path d="M10.268 21a2 2 0 0 0 3.464 0"></path>
+                 class="lucide lucide-pen-tool w-5 h-5 text-[#0b2545]" aria-hidden="true">
               <path
-                d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path>
+                d="M15.707 21.293a1 1 0 0 1-1.414 0l-1.586-1.586a1 1 0 0 1 0-1.414l5.586-5.586a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 1 0 1.414z"></path>
+              <path
+                d="m18 13-1.375-6.874a1 1 0 0 0-.746-.776L3.235 2.028a1 1 0 0 0-1.207 1.207L5.35 15.879a1 1 0 0 0 .776.746L13 18"></path>
+              <path d="m2.3 2.3 7.286 7.286"></path>
+              <circle cx="11" cy="11" r="2"></circle>
             </svg>
-            <span class="text-2xl text-[#377E7F]">5</span></div>
-          <div class="text-sm text-gray-600">Recent Activity (Last 5 Audit Logs)</div>
+            <span v-if="isLoadingSummary" class="text-2xl text-gray-300 animate-pulse text-[#0b2545]">---</span>
+            <span v-else class="text-2xl text-[#0b2545]">{{ formatNumber(summaryData.totalDraftCount) }}</span>
+          </div>
+          <div class="text-sm text-gray-600">Draft Notices</div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-lg p-6 opacity-75">
+          <div class="flex items-center justify-between mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="lucide lucide-clock w-5 h-5" aria-hidden="true" style="color: rgb(11, 37, 69);">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span class="text-2xl text-gray-400" style="color: rgb(11, 37, 69);">--</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-500">Coming Soon</div>
+            <div class="text-xs text-gray-400">TBD</div>
+          </div>
         </div>
       </div>
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
