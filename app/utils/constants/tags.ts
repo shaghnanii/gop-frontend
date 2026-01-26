@@ -1,0 +1,20 @@
+export const TAGS = [
+  { label: 'Service Rules', value: 'Service Rules' },
+  { label: 'Allowances', value: 'Allowances' },
+  { label: 'Foreign Service', value: 'Foreign Service' },
+  { label: 'Telecom', value: 'Telecom' },
+  { label: 'Licensing', value: 'Licensing' },
+  { label: 'Regulation', value: 'Regulation' },
+  { label: 'Tax', value: 'Tax' },
+  { label: 'Finance', value: 'Finance' },
+  { label: 'Revenue', value: 'Revenue' },
+  { label: 'Corporate Law', value: 'Corporate Law' },
+  { label: 'Companies', value: 'Companies' },
+  { label: 'Amendment', value: 'Amendment' },
+  { label: 'Appointments', value: 'Appointments' },
+  { label: 'Administrative', value: 'Administrative' },
+  { label: 'Personnel', value: 'Personnel' },
+  { label: 'Criminal Law', value: 'Criminal Law' },
+  { label: 'Legal Reform', value: 'Legal Reform' },
+  { label: 'Justice', value: 'Justice' }
+]
