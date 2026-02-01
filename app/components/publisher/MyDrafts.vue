@@ -175,7 +175,7 @@ const deleteDraft = async () => {
       toastMessage.value = response.message || 'Notice deleted successfully!'
       toastType.value = 'success'
       showToast.value = true
-      
+
       // Hide toast after 3 seconds
       setTimeout(() => {
         showToast.value = false
@@ -193,7 +193,7 @@ const deleteDraft = async () => {
     toastMessage.value = err.data?.message || err.message || 'Failed to delete notice'
     toastType.value = 'error'
     showToast.value = true
-    
+
     setTimeout(() => {
       showToast.value = false
     }, 3000)
@@ -307,9 +307,11 @@ onMounted(() => {
       >
         <div class="flex items-start justify-between gap-4 mb-2">
           <div class="flex-1">
-            <button class="text-[#0b2545] hover:underline text-left w-full">
-              {{ draft.title || 'Untitled Draft' }}
-            </button>
+            <nuxt-link :to="`/publisher/notice/${draft.id}`">
+              <button class="text-[#0b2545] hover:underline text-left w-full">
+                {{ draft.title || 'Untitled Draft' }}
+              </button>
+            </nuxt-link>
             <div v-if="draft.sroNumber" class="text-xs text-gray-600 mt-1">
               {{ draft.sroNumber }}
             </div>
@@ -329,9 +331,11 @@ onMounted(() => {
             {{ draft.publishedDateTime || 'No update time' }}
           </div>
           <div class="flex gap-2">
-            <button class="px-3 py-1.5 border border-gray-300 rounded hover:bg-gray-50 text-sm">
-              Edit
-            </button>
+            <NuxtLink :to="`/publisher/notice/edit/${draft.id}`">
+              <button class="px-3 py-1.5 border border-gray-300 rounded hover:bg-gray-50 text-sm">
+                Edit
+              </button>
+            </NuxtLink>
             <button
               @click="confirmDelete(draft)"
               class="px-3 py-1.5 border border-gray-300 rounded hover:bg-gray-50 text-sm"

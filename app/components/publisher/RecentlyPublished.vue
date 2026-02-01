@@ -195,9 +195,11 @@ onMounted(() => {
         :key="notice.id"
         class="p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow"
       >
-        <button class="text-[#0b2545] hover:underline text-left mb-2 block w-full">
-          {{ notice.title || 'Untitled Notice' }}
-        </button>
+        <nuxt-link :to="`/publisher/notice/${notice.id}`">
+          <button class="text-[#0b2545] hover:underline text-left mb-2 block w-full">
+            {{ notice.title || 'Untitled Notice' }}
+          </button>
+        </nuxt-link>
         <div class="flex items-center gap-2 text-xs text-gray-600">
           <span
             v-if="notice.sroNumber"
