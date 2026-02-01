@@ -119,6 +119,7 @@ const fetchNoticeDetails = async () => {
         id: string
         title: string
         htmlContent: string
+        description: string
         sroNumber?: string
         gazettePart: string
         ministry?: string
@@ -145,6 +146,7 @@ const fetchNoticeDetails = async () => {
       formData.value.gazettePart = response.data.gazettePart || ''
       formData.value.content = response.data.htmlContent || ''
       formData.value.htmlContent = response.data.htmlContent || ''
+      formData.value.description = response.data.description || ''
 
       if (response.data.tags) {
         formData.value.tags = response.data.tags
