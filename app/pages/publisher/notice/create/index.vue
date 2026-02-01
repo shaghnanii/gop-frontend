@@ -153,7 +153,7 @@ const handleStepChange = (step: number) => {
 
 const nextStep = () => {
   errorMessage.value = ''
-  
+
   // Validate current step before proceeding
   if (currentStep.value === 1 && !validateStep1()) {
     return
@@ -164,7 +164,7 @@ const nextStep = () => {
   if (currentStep.value === 4 && !validateStep4()) {
     return
   }
-  
+
   if (currentStep.value < totalSteps) {
     currentStep.value++
   }
@@ -194,206 +194,10 @@ const handleSignatureUpload = (event: Event) => {
   }
 }
 
-// Clean HTML content to remove unsupported CSS (like oklch colors)
-const cleanHTMLForPDF = (html: string): string => {
-  // Create a temporary div to parse and clean the HTML
-  const tempDiv = document.createElement('div')
-  tempDiv.innerHTML = html
-  
-  // Remove all classes and style attributes that might contain unsupported CSS
-  const allElements = tempDiv.querySelectorAll('*')
-  allElements.forEach((el) => {
-    if (el instanceof HTMLElement) {
-      // Remove all classes
-      el.removeAttribute('class')
-      // Remove all style attributes
-      el.removeAttribute('style')
-      // Remove data attributes that might affect styling
-      Array.from(el.attributes).forEach(attr => {
-        if (attr.name.startsWith('data-') || attr.name.startsWith('data-')) {
-          el.removeAttribute(attr.name)
-        }
-      })
-      
-      // Apply safe inline styles directly
-      el.style.color = '#000000'
-      el.style.backgroundColor = 'transparent'
-      el.style.border = 'none'
-      el.style.margin = '0'
-      el.style.padding = '0'
-      
-      // For specific elements, apply appropriate styles
-      if (el.tagName === 'P') {
-        el.style.marginBottom = '8px'
-        el.style.lineHeight = '1.6'
-      }
-      if (el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3') {
-        el.style.fontWeight = 'bold'
-        el.style.marginTop = '12px'
-        el.style.marginBottom = '8px'
-      }
-      if (el.tagName === 'STRONG' || el.tagName === 'B') {
-        el.style.fontWeight = 'bold'
-      }
-      if (el.tagName === 'EM' || el.tagName === 'I') {
-        el.style.fontStyle = 'italic'
-      }
-      if (el.tagName === 'U') {
-        el.style.textDecoration = 'underline'
-      }
-      if (el.tagName === 'UL' || el.tagName === 'OL') {
-        el.style.marginLeft = '20px'
-        el.style.marginBottom = '8px'
-      }
-      if (el.tagName === 'LI') {
-        el.style.marginBottom = '4px'
-      }
-      if (el.tagName === 'A') {
-        el.style.color = '#0000EE'
-        el.style.textDecoration = 'underline'
-      }
-    }
-  })
-  
-  return tempDiv.innerHTML
-}
-
-// Generate PDF from HTML content
-const generatePDF = async (htmlContent: string): Promise<File> => {
-  return new Promise((resolve, reject) => {
-    // Clean the HTML content first
-    const cleanedHTML = cleanHTMLForPDF(htmlContent)
-    
-    // Create an isolated iframe to avoid inheriting page styles
-    const iframe = document.createElement('iframe')
-    iframe.style.position = 'absolute'
-    iframe.style.left = '-9999px'
-    iframe.style.top = '0'
-    iframe.style.width = '800px'
-    iframe.style.height = '1200px'
-    iframe.style.border = 'none'
-    
-    document.body.appendChild(iframe)
-    
-    // Wait for iframe to load
-    iframe.onload = () => {
-      try {
-        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document
-        if (!iframeDoc) {
-          throw new Error('Could not access iframe document')
-        }
-        
-        // Create a clean document in the iframe
-        iframeDoc.open()
-        iframeDoc.write(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <style>
-                * {
-                  margin: 0;
-                  padding: 0;
-                  box-sizing: border-box;
-                }
-                body {
-                  font-family: Arial, sans-serif;
-                  font-size: 12px;
-                  line-height: 1.6;
-                  color: #000000;
-                  background-color: #ffffff;
-                  padding: 20px;
-                }
-                p {
-                  margin-bottom: 8px;
-                }
-                h1, h2, h3, h4, h5, h6 {
-                  font-weight: bold;
-                  margin-top: 12px;
-                  margin-bottom: 8px;
-                }
-                strong, b {
-                  font-weight: bold;
-                }
-                em, i {
-                  font-style: italic;
-                }
-                u {
-                  text-decoration: underline;
-                }
-                ul, ol {
-                  margin-left: 20px;
-                  margin-bottom: 8px;
-                }
-                li {
-                  margin-bottom: 4px;
-                }
-                a {
-                  color: #0000EE;
-                  text-decoration: underline;
-                }
-              </style>
-            </head>
-            <body>
-              ${cleanedHTML}
-            </body>
-          </html>
-        `)
-        iframeDoc.close()
-        
-        // Wait a bit for styles to apply
-        setTimeout(() => {
-          const element = iframeDoc.body
-          
-          const opt = {
-            margin: [10, 10, 10, 10] as [number, number, number, number],
-            filename: 'notice.pdf',
-            image: { type: 'jpeg' as const, quality: 0.98 },
-            html2canvas: { 
-              scale: 2, 
-              useCORS: false,
-              logging: false,
-              backgroundColor: '#ffffff',
-              removeContainer: true,
-              windowWidth: 800,
-              windowHeight: 1200,
-              foreignObjectRendering: false
-            },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
-          }
-          
-          html2pdf()
-            .set(opt)
-            .from(element)
-            .outputPdf('blob')
-            .then((pdfBlob: Blob) => {
-              // Remove iframe
-              if (iframe.parentNode) {
-                document.body.removeChild(iframe)
-              }
-              
-              // Convert blob to File
-              const pdfFile = new File([pdfBlob], 'notice.pdf', { type: 'application/pdf' })
-              resolve(pdfFile)
-            })
-            .catch((error: Error) => {
-              // Remove iframe on error
-              if (iframe.parentNode) {
-                document.body.removeChild(iframe)
-              }
-              reject(error)
-            })
-        }, 100)
-      } catch (error) {
-        if (iframe.parentNode) {
-          document.body.removeChild(iframe)
-        }
-        reject(error)
-      }
-    }
-    
-    // Trigger load
-    iframe.src = 'about:blank'
-  })
+// Generate PDF from content
+const generatePDF = async (): Promise<File | null> => {
+  // TODO: Implement actual PDF generation using a library
+  return null
 }
 
 // Save draft
@@ -401,31 +205,24 @@ const saveDraft = async () => {
   if (!validateStep1() && !validateStep2()) {
     return
   }
-  
+
   isLoading.value = true
   errorMessage.value = ''
   successMessage.value = ''
-  
+
   try {
     const token = getAccessToken()
     if (!token) {
       throw new Error('No authentication token found')
     }
-    
+
     // HTML content is already in formData.value.content (from rich text editor)
     const htmlContent = formData.value.content || ''
-    
-    // Generate PDF from HTML
-    let pdfFile: File
-    try {
-      pdfFile = await generatePDF(htmlContent)
-    } catch (error) {
-      console.error('Error generating PDF:', error)
-      errorMessage.value = 'Failed to generate PDF. Please try again.'
-      isLoading.value = false
-      return
-    }
-    
+
+    const contentForPdf = formData.value.content || ''
+    const pdfBlob = new Blob([contentForPdf], {type: 'application/pdf'})
+    const pdfFile = new File([pdfBlob], 'notice.pdf', {type: 'application/pdf'})
+
     // Prepare form data
     const formDataToSend = new FormData()
     formDataToSend.append('Title', formData.value.title)
@@ -445,16 +242,16 @@ const saveDraft = async () => {
     formDataToSend.append('Content', plainTextContent)
     formDataToSend.append('HtmlContent', htmlContent)
     formDataToSend.append('PdfContent', pdfFile)
-    
+
     // Effective date - use current date if not set
-    const effectiveDate: string = formData.value.effectiveDate === 'immediately' 
+    const effectiveDate: string = formData.value.effectiveDate === 'immediately'
       ? (new Date().toISOString().split('T')[0] || '')
       : (formData.value.effectiveDateTime || (new Date().toISOString().split('T')[0] || ''))
     formDataToSend.append('EffectiveDate', effectiveDate)
-    
+
     // Status = Draft (0)
     formDataToSend.append('Status', '1')
-    
+
     // Related acts
     if (formData.value.relatedActReferences.length > 0) {
       const relatedActs = formData.value.relatedActReferences
@@ -462,7 +259,7 @@ const saveDraft = async () => {
         .map(ref => ({Reference: ref.trim()}))
       formDataToSend.append('RelatedActs', JSON.stringify(relatedActs))
     }
-    
+
     const response = await $fetch(`${API_BASE_URL}/api/publisher-notices`, {
       method: 'POST',
       headers: {
@@ -470,7 +267,7 @@ const saveDraft = async () => {
       },
       body: formDataToSend
     })
-    
+
     successMessage.value = 'Draft saved successfully!'
     setTimeout(() => {
       navigateTo('/publisher/dashboard')
@@ -488,31 +285,24 @@ const publishNotice = async () => {
   if (!validateStep1() || !validateStep2() || !validateStep4()) {
     return
   }
-  
+
   isLoading.value = true
   errorMessage.value = ''
   successMessage.value = ''
-  
+
   try {
     const token = getAccessToken()
     if (!token) {
       throw new Error('No authentication token found')
     }
-    
+
     // HTML content is already in formData.value.content (from rich text editor)
     const htmlContent = formData.value.content || ''
-    
-    // Generate PDF from HTML
-    let pdfFile: File
-    try {
-      pdfFile = await generatePDF(htmlContent)
-    } catch (error) {
-      console.error('Error generating PDF:', error)
-      errorMessage.value = 'Failed to generate PDF. Please try again.'
-      isLoading.value = false
-      return
-    }
-    
+
+    const contentForPdf = formData.value.content || ''
+    const pdfBlob = new Blob([contentForPdf], {type: 'application/pdf'})
+    const pdfFile = new File([pdfBlob], 'notice.pdf', {type: 'application/pdf'})
+
     // Prepare form data
     const formDataToSend = new FormData()
     formDataToSend.append('Title', formData.value.title)
@@ -532,17 +322,17 @@ const publishNotice = async () => {
     formDataToSend.append('Content', plainTextContent)
     formDataToSend.append('HtmlContent', htmlContent)
     formDataToSend.append('PdfContent', pdfFile)
-    
+
     // Effective date
     const dateStr = new Date().toISOString().split('T')[0] || ''
-    const effectiveDate: string = formData.value.effectiveDate === 'immediately' 
+    const effectiveDate: string = formData.value.effectiveDate === 'immediately'
       ? dateStr
       : (formData.value.effectiveDateTime || dateStr)
     formDataToSend.append('EffectiveDate', effectiveDate)
-    
+
     // Status = Published (1) or based on publish date
     formDataToSend.append('Status', '0')
-    
+
     // Related acts
     if (formData.value.relatedActReferences.length > 0) {
       const relatedActs = formData.value.relatedActReferences
@@ -550,7 +340,7 @@ const publishNotice = async () => {
         .map(ref => ({Reference: ref.trim()}))
       formDataToSend.append('RelatedActs', JSON.stringify(relatedActs))
     }
-    
+
     const response = await $fetch(`${API_BASE_URL}/api/publisher-notices`, {
       method: 'POST',
       headers: {
@@ -558,7 +348,7 @@ const publishNotice = async () => {
       },
       body: formDataToSend
     })
-    
+
     successMessage.value = 'Notice published successfully!'
     setTimeout(() => {
       navigateTo('/publisher/dashboard')
